@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace SuperHero
 {
@@ -173,7 +174,6 @@ namespace SuperHero
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void btnUpdate_Click(object sender, EventArgs e)
         {
             try
@@ -208,6 +208,124 @@ namespace SuperHero
             catch (Exception ex)
             {
                 MessageBox.Show($"Error updating superhero: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Load all heroes
+                List<SuperHero> heroes = FileManager.LoadSuperheroes();
+
+                if (heroes.Count == 0)
+                {
+                    MessageBox.Show("No superhero data available to generate a report.",
+                        "No Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Create report content
+                StringBuilder report = new StringBuilder();
+
+                // Header
+                report.AppendLine("═══════════════════════════════════════════════════════════");
+                report.AppendLine("           SUPERHERO ASSOCIATION DATABASE REPORT");
+                report.AppendLine("═══════════════════════════════════════════════════════════");
+                report.AppendLine($"Report Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                report.AppendLine($"Total Heroes Registered: {heroes.Count}");
+                report.AppendLine("═══════════════════════════════════════════════════════════\n");
+
+                // Statistics Section
+                report.AppendLine("STATISTICS OVERVIEW");
+                report.AppendLine("───────────────────────────────────────────────────────────");
+
+                // Rank distribution
+                var rankCounts = heroes.GroupBy(h => h.Rank)
+                                      .OrderByDescending(g => g.Key)
+                                      .ToDictionary(g => g.Key, g => g.Count());
+
+                report.AppendLine("\nRank Distribution:");
+                foreach (var rank in new[] { "S-Rank", "A-Rank", "B-Rank", "C-Rank" })
+                {
+                    int count = rankCounts.ContainsKey(rank) ? rankCounts[rank] : 0;
+                    double percentage = (count / (double)heroes.Count) * 100;
+                    report.AppendLine($"   {rank,-10} : {count,3} heroes ({percentage:F1}%)");
+                }
+
+                // Age statistics
+                report.AppendLine("\nAge Statistics:");
+                report.AppendLine($"   Average Age    : {heroes.Average(h => h.Age):F1} years");
+                report.AppendLine($"   Youngest Hero  : {heroes.Min(h => h.Age)} years");
+                report.AppendLine($"   Oldest Hero    : {heroes.Max(h => h.Age)} years");
+
+                // Exam score statistics
+                report.AppendLine("\nExam Score Statistics:");
+                report.AppendLine($"   Average Score  : {heroes.Average(h => h.ExamScore):F1}");
+                report.AppendLine($"   Highest Score  : {heroes.Max(h => h.ExamScore)}");
+                report.AppendLine($"   Lowest Score   : {heroes.Min(h => h.ExamScore)}");
+
+                // Threat level distribution
+                report.AppendLine("\nThreat Level Distribution:");
+                var threatCounts = heroes.GroupBy(h => h.ThreatLevel)
+                                        .OrderByDescending(g => g.Count())
+                                        .ToDictionary(g => g.Key, g => g.Count());
+                foreach (var threat in threatCounts)
+                {
+                    double percentage = (threat.Value / (double)heroes.Count) * 100;
+                    report.AppendLine($"   {threat.Key,-30} : {threat.Value,3} ({percentage:F1}%)");
+                }
+
+                report.AppendLine("\n═══════════════════════════════════════════════════════════\n");
+
+                // Top Heroes Section
+                report.AppendLine("TOP 10 HEROES BY EXAM SCORE");
+                report.AppendLine("───────────────────────────────────────────────────────────");
+                report.AppendLine($"{"Rank",-8} {"Hero ID",-10} {"Name",-20} {"Score",-8} {"Superpower",-25}");
+                report.AppendLine("───────────────────────────────────────────────────────────");
+
+                var topHeroes = heroes.OrderByDescending(h => h.ExamScore).Take(10);
+                int position = 1;
+                foreach (var hero in topHeroes)
+                {
+                    report.AppendLine($"{position + ".",-8} {hero.HeroID,-10} {hero.Name,-20} {hero.ExamScore,-8} {hero.Superpower,-25}");
+                    position++;
+                }
+
+                report.AppendLine("\n═══════════════════════════════════════════════════════════\n");
+
+                // Heroes by Rank Section
+                report.AppendLine("HEROES BY RANK");
+                report.AppendLine("───────────────────────────────────────────────────────────");
+
+                foreach (var rank in new[] { "S-Rank", "A-Rank", "B-Rank", "C-Rank" })
+                {
+                    var heroesInRank = heroes.Where(h => h.Rank == rank).OrderByDescending(h => h.ExamScore);
+                    if (heroesInRank.Any())
+                    {
+                        report.AppendLine($"\n{rank} ({heroesInRank.Count()} heroes):");
+                        foreach (var hero in heroesInRank)
+                        {
+                            report.AppendLine($"   - {hero.Name,-20} (ID: {hero.HeroID,-10}) | Score: {hero.ExamScore,3} | Age: {hero.Age,3} | Power: {hero.Superpower}");
+                        }
+                    }
+                }
+
+                report.AppendLine("\n═══════════════════════════════════════════════════════════");
+                report.AppendLine("                    END OF REPORT");
+                report.AppendLine("═══════════════════════════════════════════════════════════");
+
+                // Save the report as summary.txt
+                string fileName = "summary.txt";
+                File.WriteAllText(fileName, report.ToString());
+
+                MessageBox.Show($"Report generated successfully!\n\nFile saved as: {fileName}",
+                    "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error generating report: {ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
