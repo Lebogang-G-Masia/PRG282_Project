@@ -83,6 +83,24 @@ namespace SuperHero
                 throw new Exception($"Error saving superhero: {ex.Message}");
             }
         }
+
+        public static void SaveSuperheroes(List<SuperHero> heroes)
+        {
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(fileName, false)) // false = overwrite file
+                {
+                    foreach (SuperHero hero in heroes)
+                    {
+                        writer.WriteLine(hero.ToFileString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error saving superheroes: {ex.Message}");
+            }
+        }
         public static List<SuperHero> LoadSuperheroes()
         {
             List<SuperHero> heroes = new List<SuperHero>();
