@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.lblCount = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -40,7 +41,6 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.dgvSuperheroes = new System.Windows.Forms.DataGridView();
-            this.lblCount = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -56,6 +56,15 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(799, 118);
             this.panel1.TabIndex = 0;
+            // 
+            // lblCount
+            // 
+            this.lblCount.AutoSize = true;
+            this.lblCount.Location = new System.Drawing.Point(25, 27);
+            this.lblCount.Name = "lblCount";
+            this.lblCount.Size = new System.Drawing.Size(35, 13);
+            this.lblCount.TabIndex = 2;
+            this.lblCount.Text = "label3";
             // 
             // label2
             // 
@@ -106,6 +115,7 @@
             this.btnDelete.TabIndex = 3;
             this.btnDelete.Text = "Delete Hero";
             this.btnDelete.UseVisualStyleBackColor = true;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
             // btnUpdate
             // 
@@ -115,6 +125,7 @@
             this.btnUpdate.TabIndex = 2;
             this.btnUpdate.Text = "Update Hero";
             this.btnUpdate.UseVisualStyleBackColor = true;
+            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
             // 
             // btnRefresh
             // 
@@ -161,15 +172,6 @@
             this.dgvSuperheroes.Name = "dgvSuperheroes";
             this.dgvSuperheroes.Size = new System.Drawing.Size(426, 258);
             this.dgvSuperheroes.TabIndex = 0;
-            // 
-            // lblCount
-            // 
-            this.lblCount.AutoSize = true;
-            this.lblCount.Location = new System.Drawing.Point(25, 27);
-            this.lblCount.Name = "lblCount";
-            this.lblCount.Size = new System.Drawing.Size(35, 13);
-            this.lblCount.TabIndex = 2;
-            this.lblCount.Text = "label3";
             // 
             // Form1
             // 

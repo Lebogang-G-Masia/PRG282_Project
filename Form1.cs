@@ -114,5 +114,102 @@ namespace SuperHero
             MessageBox.Show("Database refreshed successfully!", "Success",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Check if a row is selected
+                if (dgvSuperheroes.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Please select a hero to delete.",
+                        "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Get the selected row
+                DataGridViewRow selectedRow = dgvSuperheroes.SelectedRows[0];
+                string heroID = selectedRow.Cells["HeroID"].Value.ToString();
+                string heroName = selectedRow.Cells["Name"].Value.ToString();
+
+                // Confirm deletion
+                DialogResult result = MessageBox.Show(
+                    $"Are you sure you want to delete {heroName} (ID: {heroID})?\n\nThis action cannot be undone.",
+                    "Confirm Deletion",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    // Load all heroes
+                    List<SuperHero> heroes = FileManager.LoadSuperheroes();
+
+                    // Find and remove the hero
+                    SuperHero heroToDelete = heroes.FirstOrDefault(h => h.HeroID == heroID);
+
+                    if (heroToDelete != null)
+                    {
+                        heroes.Remove(heroToDelete);
+
+                        // Save the updated list
+                        FileManager.SaveSuperheroes(heroes);
+
+                        // Refresh the grid
+                        LoadSuperheroes();
+
+                        MessageBox.Show($"{heroName} has been successfully deleted.",
+                            "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Hero not found in database.",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error deleting superhero: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Check if a row is selected
+                if (dgvSuperheroes.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Please select a hero to update.",
+                        "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Get the selected row data
+                DataGridViewRow selectedRow = dgvSuperheroes.SelectedRows[0];
+                string heroID = selectedRow.Cells["HeroID"].Value.ToString();
+                string name = selectedRow.Cells["Name"].Value.ToString();
+                int age = Convert.ToInt32(selectedRow.Cells["Age"].Value);
+                string superpower = selectedRow.Cells["Superpower"].Value.ToString();
+                int examScore = Convert.ToInt32(selectedRow.Cells["ExamScore"].Value);
+
+                // Create and show the update form with pre-filled data
+                UpdateSuperHeroForm updateForm = new UpdateSuperHeroForm(heroID, name, age, superpower, examScore);
+
+                // When a hero is updated, refresh the grid
+                updateForm.SuperheroUpdated += (s, args) =>
+                {
+                    LoadSuperheroes();
+                };
+
+                updateForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error updating superhero: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }
